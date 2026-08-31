@@ -1,0 +1,4 @@
+[package]
+name = "Idris2-Geometry3"
+version = "0.3.0"
+ipkg = "Idris2-Geometry3.ipkg"

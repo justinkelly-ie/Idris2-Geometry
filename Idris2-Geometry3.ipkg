@@ -1,0 +1,27 @@
+package Idris2-Geometry3
+version = 0.3.0
+authors = "Justin Kelly"
+brief   = "Layer 3a Discrete Kinematics & Differential Geometry Subsystem."
+
+depends = base
+        , Idris2-Multiset0
+        , Idris2-Multiset1
+        , Idris2-Naray2
+
+sourcedir = "src"
+
+modules = Geometry.LatticeTopology
+        , Geometry.GrassmannCalculus
+        , Geometry.InformationGeometry
+        , Math.FourGeometries
+        , Math.LawAlgebra
+        , Math.LinAlgebra.MetricTensor
+        , Math.LinAlgebra.TernaryClassifier
+        , Math.LinAlgebra.BilinearProduct
+        , Math.SubstrateMetricTensor55
+        , Math.MultisetMetricTensor55
+        , Math.RationalTrig
+        , Math.Infinitesimal
+        , Math.QuantumTransition
+        , Math.WilsonPolyhedra
+        , Math.CliffordAlgebra
