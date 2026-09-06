@@ -1,6 +1,9 @@
 module Geometry.LatticeTopology
 
+import Language.Reflection
+import Math.Singleton.Bit
 import Core.BoxInt
+import Core.ScaleTransform
 import Core.VexelMaxel
 import Math.LinAlgebra.TernaryClassifier
 import Core.NarayAlphabet
@@ -186,3 +189,19 @@ public export
 auditToroidalBoxelFluxProof : Boxel -> Bool
 auditToroidalBoxelFluxProof b =
   unwrapBox (totalBoxelWeight (discreteLaplacianBoxel b)) == 0
+
+public export
+ScaleTransform Coord3D Nat where
+  scaleTransform c = finToNat (coordToFin27 c)
+
+public export
+InvertibleScaleTransform Coord3D Nat where
+  invertScaleTransform n =
+    case natToFin n 27 of
+      Just f  => fin27ToCoord f
+      Nothing => fin27ToCoord 0
+
+public export
+auditToroidalBoxelFluxProofBit : Boxel -> Bit
+auditToroidalBoxelFluxProofBit b = boolToBit (auditToroidalBoxelFluxProof b)
+

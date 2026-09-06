@@ -124,6 +124,11 @@ substrateCausalArrowAction : Maxel -> Bool
 substrateCausalArrowAction g =
   unwrapBox (g22 g) == 0 && unwrapBox (g12 g) == 1
 
+public export
+substrateCausalArrowActionBit : Maxel -> Bit
+substrateCausalArrowActionBit g =
+  if unwrapBox (g22 g) == 0 && unwrapBox (g12 g) == 1 then One else Zero
+
 ------------------------------------------------------------------------
 -- 4. COSMIC BUDGET DECOMPOSITION ACROSS THE 4 GEOMETRIES
 ------------------------------------------------------------------------
