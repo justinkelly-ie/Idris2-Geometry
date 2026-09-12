@@ -9,6 +9,7 @@ import Math.LinAlgebra.TernaryClassifier
 import Core.NarayAlphabet
 import Data.Vect
 import Data.Fin
+import Core.Goh
 
 %default total
 
@@ -204,4 +205,50 @@ InvertibleScaleTransform Coord3D Nat where
 public export
 auditToroidalBoxelFluxProofBit : Boxel -> Bit
 auditToroidalBoxelFluxProofBit b = boolToBit (auditToroidalBoxelFluxProof b)
+
+------------------------------------------------------------------------
+-- 5. DISCRETE TOROIDAL CELL NETWORK & FLUX HOMOLOGY RING
+------------------------------------------------------------------------
+
+||| Represents a focused coordinate on a finite toroidal lattice network
+public export
+record ToroidalCell (size : Nat) where
+  constructor Cell
+  xCoord : Nat
+  yCoord : Nat
+  0 xBounded : LT xCoord size
+  0 yBounded : LT yCoord size
+
+||| A type-level proof witness tracking discrete topological gauge flux loops.
+||| It maps a GohMultiset path structure to an exact integer winding number (Nat).
+public export
+data ToroidalFlux : (size : Nat) -> (bag : GohMultiset) -> (windingNumber : Nat) -> Type where
+  ||| Constructing this witness requires proving that the path completes 
+  ||| a closed, integer-conserving homology loop around the lattice torus.
+  QuantizedLoop : {size : Nat} -> {winding : Nat} ->
+                  (bag : GohMultiset) -> 
+                  (0 prf : (countFactors bag = (winding * size))) -> 
+                  ToroidalFlux size bag winding
+
+
+
+||| Audits toroidal flux containment by verifying that the multiset 
+||| factor layout maps cleanly to a valid homology invariant class.
+public export
+auditToroidalBoxelFlux : (size : Nat) -> (bag : GohMultiset) -> Bool
+auditToroidalBoxelFlux Z bag = True
+auditToroidalBoxelFlux (S k) bag =
+  case countFactors bag of
+    Z => True
+    S n => ((S n) `mod` (S k)) == 0
+
+||| Static compiler proof witness verifying that the topological vacuum 
+||| maps safely to the identity homology class with zero structural drift.
+public export
+0 verifyTopologicalCoherence : (size : Nat) -> 
+                               auditToroidalBoxelFlux size EmptyBag = True
+verifyTopologicalCoherence Z     = Refl
+verifyTopologicalCoherence (S k) = Refl
+
+
 

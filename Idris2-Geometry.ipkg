@@ -13,6 +13,8 @@ sourcedir = "src"
 modules = Geometry.LatticeTopology
         , Geometry.GrassmannCalculus
         , Geometry.InformationGeometry
+        , Geometry.Applicative
+        , Geometry.MetricalBounds
         , Math.FourGeometries
         , Math.LawAlgebra
         , Math.LinAlgebra.MetricTensor
@@ -25,3 +27,4 @@ modules = Geometry.LatticeTopology
         , Math.QuantumTransition
         , Math.WilsonPolyhedra
         , Math.CliffordAlgebra
+
