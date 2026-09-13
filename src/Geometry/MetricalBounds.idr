@@ -3,6 +3,7 @@ module Geometry.MetricalBounds
 import Data.Vect
 import Core.UnixelFraction
 import Core.Goh
+import Core.Order.Preorder
 import Geometry.Applicative
 
 %default total

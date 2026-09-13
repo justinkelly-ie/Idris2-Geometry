@@ -31,9 +31,9 @@ g22 : Maxel -> BoxInt
 g22 m = lookupPixel (MkPixel 2 2) m
 
 ||| Metric Determinant: det(M) = g11 * g22 - g12^2
-public export
+%inline public export
 detMetric : Maxel -> BoxInt
-detMetric m = (g11 m * g22 m) - (g12 m * g12 m)
+detMetric m = detSymmetricMatrix2D (g11 m) (g12 m) (g22 m)
 
 ||| Metric Trace: tr(M) = g11 + g22
 public export

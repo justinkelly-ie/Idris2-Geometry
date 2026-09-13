@@ -4,6 +4,7 @@ import Data.Vect
 import Core.BoxInt
 import Core.UnixelFraction
 import Core.Goh
+import Core.Order.Preorder
 
 %default total
 
