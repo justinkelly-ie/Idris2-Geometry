@@ -15,6 +15,7 @@ modules = Geometry.LatticeTopology
         , Geometry.InformationGeometry
         , Geometry.Applicative
         , Geometry.MetricalBounds
+        , Geometry.MonadicMetricSpace
         , Math.FourGeometries
         , Math.LawAlgebra
         , Math.LinAlgebra.MetricTensor
