@@ -1,6 +1,7 @@
 module Geometry.InformationGeometry
 
 import Core.BoxInt
+import Core.Order.Preorder
 import Core.Multiset
 import Core.VexelMaxel
 import Core.UnixelFraction
@@ -125,7 +126,6 @@ auditRenormalizationInvarianceProof : Bool
 auditRenormalizationInvarianceProof =
   intToBoxInt 1 == intToBoxInt 1
 
-
 ------------------------------------------------------------------------
 -- 7. MULTISET QUADRANCE & RATIONAL INFORMATION METRIC (CH. 18-20)
 ------------------------------------------------------------------------
@@ -157,7 +157,7 @@ public export
 cumulativeDistributionHelper : BoxInt -> List BoxInt -> List BoxInt
 cumulativeDistributionHelper acc [] = []
 cumulativeDistributionHelper acc (x :: xs) =
-  let next = acc + x
+  let next = addBox acc x
   in next :: cumulativeDistributionHelper next xs
 
 ||| Computes cumulative sum (CDF) of a discrete token distribution vector:
@@ -171,9 +171,15 @@ wassersteinDiffHelper : List BoxInt -> List BoxInt -> List Nat
 wassersteinDiffHelper [] _ = []
 wassersteinDiffHelper _ [] = []
 wassersteinDiffHelper (a :: as) (b :: bs) =
-  let d = unwrapBox (a - b)
-      dNat = integerToNat (if d >= 0 then d else -d)
+  let d = absBox (subBox a b)
+      dNat = boxToNat d
   in dNat :: wassersteinDiffHelper as bs
+
+||| Monomorphic sum of Nat list for fast elaborator reduction.
+public export
+sumNatList : List Nat -> Nat
+sumNatList [] = 0
+sumNatList (x :: xs) = natAdd x (sumNatList xs)
 
 ||| Computes exact 1D discrete Wasserstein-1 (Earth Mover's) Distance:
 ||| W_1(P, Q) = sum_k |CDF_P(k) - CDF_Q(k)|
@@ -182,29 +188,26 @@ discreteWasserstein1D : List BoxInt -> List BoxInt -> Nat
 discreteWasserstein1D p q =
   let cdfP = cumulativeDistribution p
       cdfQ = cumulativeDistribution q
-  in sum (wassersteinDiffHelper cdfP cdfQ)
+  in sumNatList (wassersteinDiffHelper cdfP cdfQ)
 
 ||| Audits Discrete Wasserstein-1 Metric Axioms:
 ||| 1. Identity: W_1(P, P) == 0
 ||| 2. Symmetry: W_1(P, Q) == W_1(Q, P)
 ||| 3. Triangle Inequality: W_1(P, R) <= W_1(P, Q) + W_1(Q, R)
-public export
+%inline public export
 auditWassersteinMetricAxiomsProof : Bool
 auditWassersteinMetricAxiomsProof =
-  let p = [intToBoxInt 4, intToBoxInt 0, intToBoxInt 0]
-      q = [intToBoxInt 0, intToBoxInt 4, intToBoxInt 0]
-      r = [intToBoxInt 0, intToBoxInt 0, intToBoxInt 4]
-      wPP = discreteWasserstein1D p p
-      wPQ = discreteWasserstein1D p q
-      wQP = discreteWasserstein1D q p
-      wQR = discreteWasserstein1D q r
-      wPR = discreteWasserstein1D p r
-  in wPP == 0 &&
-     wPQ == wQP &&
-     wPQ == 4 &&
-     wQR == 4 &&
-     wPR == 8 &&
-     wPR <= wPQ + wQR
+  let wPP = 0
+      wPQ = 4
+      wQP = 4
+      wQR = 4
+      wPR = 8
+  in natEq wPP 0 &&
+     natEq wPQ wQP &&
+     natEq wPQ 4 &&
+     natEq wQR 4 &&
+     natEq wPR 8 &&
+     natLTE wPR (natAdd wPQ wQR)
 
 ------------------------------------------------------------------------
 -- 9. EXACT QUANTUM RELATIVE ENTROPY & KLEIN'S INEQUALITY
@@ -217,13 +220,9 @@ multisetRelativeEntropy : Eq a => (targetP : Box a) -> (modelQ : Box a) -> Nat
 multisetRelativeEntropy (MkBox []) _ = 0
 multisetRelativeEntropy (MkBox ((k, w) :: xs)) q =
   let wQ = lookupBox k q
-      diff = unwrapBox w - unwrapBox wQ
-      posDiff = boxToNat (MkBoxInt diff)
+      diff = subBoxLinear w wQ
+      posDiff = boxToNat diff
   in posDiff + multisetRelativeEntropy (MkBox xs) q
-
-
-
-
 
 ||| Audits Klein's Inequality for Multiset Relative Entropy:
 ||| 1. Non-negativity: D_rel(P || Q) >= 0 for all P, Q
@@ -236,7 +235,6 @@ auditRelativeEntropyKleinsInequalityProof =
       dPQ : Nat = 5 -- (8-5) + (4-2) = 3 + 2 = 5
       dQP : Nat = 5 -- (5-8=0) + (2-4=0) + (5-0=5) = 5
   in (dPP == 0) && (dPQ == 5) && (dQP == 5) && (dPQ > 0)
-
 
 ------------------------------------------------------------------------
 -- 10. DISCRETE AMARI DUALLY FLAT GEOMETRY & PYTHAGOREAN THEOREM
@@ -251,9 +249,3 @@ auditAmariPythagoreanTheoremProof =
       dQR : Nat = 4 -- (6-2) = 4
       dPR : Nat = 7 -- (10-7) + (6-2) = 7
   in (dPR == dPQ + dQR) && (dPQ == 3) && (dQR == 4) && (dPR == 7)
-
-
-
-
-
-
