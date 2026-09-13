@@ -3,8 +3,11 @@ module Math.FourGeometries
 import public Core.BoxInt
 import public Core.VexelMaxel
 import public Core.UnixelFraction
+import public Core.ScaleTransform
 import public Math.LinAlgebra.MetricTensor
 import public Math.LinAlgebra.TernaryClassifier
+import Geometry.LatticeTopology
+import Data.Fin
 
 %default total
 
@@ -22,6 +25,36 @@ Eq ColorCharge where
   GreenColor == GreenColor = True
   BlueColor == BlueColor = True
   _ == _ = False
+
+public export
+Show ColorCharge where
+  show RedColor   = "Red"
+  show GreenColor = "Green"
+  show BlueColor  = "Blue"
+
+public export
+ScaleTransform ColorCharge Nat where
+  scaleTransform RedColor   = 1
+  scaleTransform GreenColor = 2
+  scaleTransform BlueColor  = 3
+
+public export
+InvertibleScaleTransform ColorCharge Nat where
+  invertScaleTransform Z = RedColor
+  invertScaleTransform (S Z) = RedColor
+  invertScaleTransform (S (S Z)) = GreenColor
+  invertScaleTransform (S (S (S _))) = BlueColor
+
+||| Classifies each cell index in Fin 27 into its exact QCD Color Sector.
+||| Uses the Z-axis coordinate layer (z = -1 -> Red, z = 0 -> Green, z = +1 -> Blue).
+public export
+cellColorSector : Fin 27 -> ColorCharge
+cellColorSector idx =
+  let c = fin27ToCoord idx
+  in case coordZ c of
+       Bit3MinusOne => RedColor
+       Bit3Zero     => GreenColor
+       Bit3PlusOne  => BlueColor
 
 ||| The 4 canonical metric geometries governing space, time, gauge, and causality:
 ||| 1. EllipticGeom  (Blue Sector  / det g = +1 / Spacelike Confinement Canvas)
