@@ -4,7 +4,7 @@ import Core.BoxInt
 import Core.ScaleTransform
 import Core.NarayAlphabet
 import Geometry.LatticeTopology
-import Math.FourGeometries
+import Core
 import Data.Fin
 
 %default total

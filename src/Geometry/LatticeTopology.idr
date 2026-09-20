@@ -15,7 +15,6 @@ import Data.Fuel
 
 %default total
 
-
 ||| A discrete 3D Spatial Coordinate vector situated on the 3x3x3 maxel grid.
 ||| Each coordinate component x, y, z is an exact ternary value in {-1, 0, +1}.
 public export
@@ -123,38 +122,38 @@ getFaceNeighbors idx =
 
 ||| Helper to safely look up cell value by Fin 27 index.
 public export
-lookupCell : Fin 27 -> Vect 27 Core.BoxInt.BoxInt -> Core.BoxInt.BoxInt
+lookupCell : Fin 27 -> Vect 27 BoxInt -> BoxInt
 lookupCell idx grid = index idx grid
 
 ||| Computes the Discrete Laplacian ΔV on a single cell:
 ||| ΔV(r) = Σ (V(neighbor) - V(r)) for all 6 face neighbors
 public export
-cellLaplacian : Fin 27 -> Vect 27 Core.BoxInt.BoxInt -> Core.BoxInt.BoxInt
+cellLaplacian : Fin 27 -> Vect 27 BoxInt -> BoxInt
 cellLaplacian idx grid =
   let selfVal   = lookupCell idx grid
       neighbors = getFaceNeighbors idx
-      sumNeighbors = foldl (\acc, nIdx => acc + lookupCell nIdx grid) (Core.BoxInt.intToBoxInt 0) neighbors
-  in sumNeighbors - (Core.BoxInt.intToBoxInt 6 * selfVal)
+      sumNeighbors = foldl (\acc, nIdx => addBox acc (lookupCell nIdx grid)) (intToBoxInt 0) neighbors
+  in subBox sumNeighbors (addBox selfVal (addBox selfVal (addBox selfVal (addBox selfVal (addBox selfVal selfVal)))))
 
 ||| Generates the full Discrete Laplacian field ΔV for all 27 cells.
 public export
-discreteLaplacian27 : Vect 27 Core.BoxInt.BoxInt -> Vect 27 Core.BoxInt.BoxInt
+discreteLaplacian27 : Vect 27 BoxInt -> Vect 27 BoxInt
 discreteLaplacian27 grid =
   tabulate (\idx => cellLaplacian idx grid)
 
 ||| Computes the total sum of a 27-cell field.
 public export
-sumField27 : Vect 27 Core.BoxInt.BoxInt -> Core.BoxInt.BoxInt
-sumField27 grid = foldl (+) (Core.BoxInt.intToBoxInt 0) grid
+sumField27 : Vect 27 BoxInt -> BoxInt
+sumField27 grid = foldl addBox (intToBoxInt 0) grid
 
 ||| Propagates spatial field flux by one discrete time step under diffusion parameter kappa:
 ||| V_{t+1}(r) = V_t(r) + kappa * ΔV(r)
 ||| Exactly preserves total field sum (sum V_{t+1} == sum V_t).
 public export
-stepFluxPropagation : Core.BoxInt.BoxInt -> Vect 27 Core.BoxInt.BoxInt -> Vect 27 Core.BoxInt.BoxInt
+stepFluxPropagation : BoxInt -> Vect 27 BoxInt -> Vect 27 BoxInt
 stepFluxPropagation kappa grid =
   let lap = discreteLaplacian27 grid
-  in zipWith (\v, l => v + (kappa * l)) grid lap
+  in zipWith (\v, l => addBox v (intToBoxInt (unwrapBox kappa * unwrapBox l))) grid lap
 
 ------------------------------------------------------------------------
 -- 4. PURE BOXEL MULTISET LATTICE & FLUX OPERATORS
@@ -169,14 +168,14 @@ fin27ToVoxel idx =
 
 ||| Converts a flat 27-cell scalar field into a 3D Boxel multiset.
 public export
-field27ToBoxel : Vect 27 Core.BoxInt.BoxInt -> Boxel
+field27ToBoxel : Vect 27 BoxInt -> Boxel
 field27ToBoxel grid =
   let paired = tabulate (\idx => (fin27ToVoxel idx, lookupCell idx grid))
   in canonicalizeBoxel (MkBoxel (toList paired))
 
 ||| Converts a 3D Boxel multiset back into a flat 27-cell scalar field.
 public export
-boxelToField27 : Boxel -> Vect 27 Core.BoxInt.BoxInt
+boxelToField27 : Boxel -> Vect 27 BoxInt
 boxelToField27 b =
   tabulate (\idx => lookupVoxel (fin27ToVoxel idx) b)
 
@@ -192,7 +191,7 @@ discreteLaplacianBoxel b =
 public export
 auditToroidalBoxelFluxProof : Boxel -> Bool
 auditToroidalBoxelFluxProof b =
-  unwrapBox (totalBoxelWeight (discreteLaplacianBoxel b)) == 0
+  totalBoxelWeight (discreteLaplacianBoxel b) == intToBoxInt 0
 
 public export
 ScaleTransform Coord3D Nat where
@@ -233,8 +232,6 @@ data ToroidalFlux : (size : Nat) -> (bag : GohMultiset) -> (windingNumber : Nat)
                   (0 prf : (countFactors bag = (winding * size))) -> 
                   ToroidalFlux size bag winding
 
-
-
 ||| Audits toroidal flux containment by verifying that the multiset 
 ||| factor layout maps cleanly to a valid homology invariant class.
 public export
@@ -249,7 +246,7 @@ auditToroidalBoxelFlux (S k) bag =
 ||| maps safely to the identity homology class with zero structural drift.
 public export
 0 verifyTopologicalCoherence : (size : Nat) -> 
-                               auditToroidalBoxelFlux size EmptyBag = True
+                              auditToroidalBoxelFlux size EmptyBag = True
 verifyTopologicalCoherence Z     = Refl
 verifyTopologicalCoherence (S k) = Refl
 
@@ -278,8 +275,3 @@ auditFusedLatticeStreamProof =
       strm = fusedLatticeStream c0 dirs
       res = runFueledStream (limit 10) strm
   in length res == 3
-
-
-
-
-

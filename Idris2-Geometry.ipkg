@@ -1,12 +1,13 @@
 package Idris2-Geometry
-version = 0.3.0
+version = 0.3.2
 authors = "Justin Kelly"
 brief   = "Layer 3a Discrete Kinematics & Differential Geometry Subsystem."
 
 depends = base, linear, Idris2-Multiset-Core, Idris2-Multiset-Transform, Idris2-Multiset-Ternary, Idris2-Dihedron
 sourcedir = "src"
 
-modules = Core.CosmicScaleTransform,
+modules = Geometry,
+          Core.CosmicScaleTransform,
           Geometry.Applicative,
           Geometry.GrassmannCalculus,
           Geometry.InformationGeometry,
@@ -18,7 +19,7 @@ modules = Core.CosmicScaleTransform,
           Math.CliffordAlgebra,
           Math.ExclusionPrinciple,
           Math.FourGeometries,
-          Math.LawAlgebra,
+
           Math.LinAlgebra.BilinearProduct,
           Math.LinAlgebra.MetricTensor,
           Math.LinAlgebra.TernaryClassifier,

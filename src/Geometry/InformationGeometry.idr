@@ -8,7 +8,7 @@ import Core.UnixelFraction
 import Math.CliffordAlgebra
 import Math.LinAlgebra.MetricTensor
 import Math.RationalTrig
-import Math.FourGeometries
+import Core
 
 %default total
 
