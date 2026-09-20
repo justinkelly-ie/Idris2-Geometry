@@ -3,29 +3,30 @@ version = 0.3.0
 authors = "Justin Kelly"
 brief   = "Layer 3a Discrete Kinematics & Differential Geometry Subsystem."
 
-depends = base
-        , Idris2-Multiset-Core
-        , Idris2-Multiset-Transform
-        , Idris2-Multiset-Ternary
-
+depends = base, linear, Idris2-Multiset-Core, Idris2-Multiset-Transform, Idris2-Multiset-Ternary, Idris2-Dihedron
 sourcedir = "src"
 
-modules = Geometry.LatticeTopology
-        , Geometry.GrassmannCalculus
-        , Geometry.InformationGeometry
-        , Geometry.Applicative
-        , Geometry.MetricalBounds
-        , Geometry.MonadicMetricSpace
-        , Math.FourGeometries
-        , Math.LawAlgebra
-        , Math.LinAlgebra.MetricTensor
-        , Math.LinAlgebra.TernaryClassifier
-        , Math.LinAlgebra.BilinearProduct
-        , Math.SubstrateMetricTensor55
-        , Math.MultisetMetricTensor55
-        , Math.RationalTrig
-        , Math.Infinitesimal
-        , Math.QuantumTransition
-        , Math.WilsonPolyhedra
-        , Math.CliffordAlgebra
+modules = Core.CosmicScaleTransform,
+          Geometry.Applicative,
+          Geometry.GrassmannCalculus,
+          Geometry.InformationGeometry,
+          Geometry.LatticeTopology,
+          Geometry.LatticeStream,
+          Geometry.MetricalBounds,
+          Geometry.MonadicMetricSpace,
+          Math.ChromoCategory,
+          Math.CliffordAlgebra,
+          Math.ExclusionPrinciple,
+          Math.FourGeometries,
+          Math.LawAlgebra,
+          Math.LinAlgebra.BilinearProduct,
+          Math.LinAlgebra.MetricTensor,
+          Math.LinAlgebra.TernaryClassifier,
+          Math.MotivicProof,
+          Math.MultisetMetricTensor55,
+          Math.QuantumTransition,
+          Math.RationalTrig,
+          Math.SubstrateMetricTensor55,
+          Math.SpatialProjection,
+          Math.WilsonPolyhedra
 

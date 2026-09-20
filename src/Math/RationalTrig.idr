@@ -6,6 +6,7 @@ import Core.Multiset
 import Core.UnixelFraction
 import Core.Polynumber
 import Math.LinAlgebra.MetricTensor
+import Core.TypeTheory.TwoLevel
 import Data.List
 
 %default total
@@ -224,4 +225,84 @@ public export
 auditBoxCollinearitySpreadProof : Bool
 auditBoxCollinearitySpreadProof =
   archimedesFunction (intToBoxInt 4) (intToBoxInt 25) (intToBoxInt 9) == intToBoxInt 0
+
+------------------------------------------------------------------------
+-- 5. TWO-LEVEL TYPE THEORY (2LTT) QUADREA & WILDBERGER CHROMOGEOMETRY
+------------------------------------------------------------------------
+
+||| Wildberger Theorem 6: Three-Fold Quadrance Metric Symmetry (Q_b^2 == Q_r^2 + Q_g^2).
+||| For displacement (dx, dy): Q_b = dx^2 + dy^2, Q_r = dx^2 - dy^2, Q_g = 2*dx*dy.
+public export
+evaluateThreeFoldQuadranceSymmetry : (dx : BoxInt) -> (dy : BoxInt) -> Bool
+evaluateThreeFoldQuadranceSymmetry dx dy =
+  let qb = (dx * dx) + (dy * dy)
+      qr = (dx * dx) - (dy * dy)
+      qg = intToBoxInt 2 * (dx * dy)
+  in (qb * qb) == (qr * qr) + (qg * qg)
+
+||| Computes the (Blue, Red, Green) Quadreas of a triangle A1(x1, y1), A2(x2, y2), A3(x3, y3).
+public export
+evaluateThreeFoldQuadrea : (x1 : BoxInt) -> (y1 : BoxInt) ->
+                           (x2 : BoxInt) -> (y2 : BoxInt) ->
+                           (x3 : BoxInt) -> (y3 : BoxInt) -> (BoxInt, BoxInt, BoxInt)
+evaluateThreeFoldQuadrea x1 y1 x2 y2 x3 y3 =
+  let dx12 = x2 - x1
+      dy12 = y2 - y1
+      dx23 = x3 - x2
+      dy23 = y3 - y2
+      dx31 = x1 - x3
+      dy31 = y1 - y3
+      -- Blue Quadrances
+      qb1 = (dx12 * dx12) + (dy12 * dy12)
+      qb2 = (dx23 * dx23) + (dy23 * dy23)
+      qb3 = (dx31 * dx31) + (dy31 * dy31)
+      ab  = (qb1 + qb2 + qb3) * (qb1 + qb2 + qb3) - intToBoxInt 2 * ((qb1 * qb1) + (qb2 * qb2) + (qb3 * qb3))
+      -- Red Quadrances
+      qr1 = (dx12 * dx12) - (dy12 * dy12)
+      qr2 = (dx23 * dx23) - (dy23 * dy23)
+      qr3 = (dx31 * dx31) - (dy31 * dy31)
+      ar  = (qr1 + qr2 + qr3) * (qr1 + qr2 + qr3) - intToBoxInt 2 * ((qr1 * qr1) + (qr2 * qr2) + (qr3 * qr3))
+      -- Green Quadrances
+      qg1 = intToBoxInt 2 * (dx12 * dy12)
+      qg2 = intToBoxInt 2 * (dx23 * dy23)
+      qg3 = intToBoxInt 2 * (dx31 * dy31)
+      ag  = (qg1 + qg2 + qg3) * (qg1 + qg2 + qg3) - intToBoxInt 2 * ((qg1 * qg1) + (qg2 * qg2) + (qg3 * qg3))
+  in (ab, ar, ag)
+
+||| Wildberger Theorem 8: The Three-Fold Quadrea Theorem (A_b == -A_r == -A_g).
+public export
+verifyThreeFoldQuadreaTheorem : (x1 : BoxInt) -> (y1 : BoxInt) ->
+                                (x2 : BoxInt) -> (y2 : BoxInt) ->
+                                (x3 : BoxInt) -> (y3 : BoxInt) -> Bool
+verifyThreeFoldQuadreaTheorem x1 y1 x2 y2 x3 y3 =
+  let (ab, ar, ag) = evaluateThreeFoldQuadrea x1 y1 x2 y2 x3 y3
+  in ab == (intToBoxInt (-1) * ar) && ab == (intToBoxInt (-1) * ag)
+
+||| Audits Wildberger Chromogeometry Theorems 6 & 8 on concrete triangle coordinates.
+public export
+auditThreeFoldChromogeometryProof : Bool
+auditThreeFoldChromogeometryProof =
+  let t6Ok = evaluateThreeFoldQuadranceSymmetry (intToBoxInt 3) (intToBoxInt 4)
+      t8Ok = verifyThreeFoldQuadreaTheorem (intToBoxInt 0) (intToBoxInt 0)
+                                           (intToBoxInt 4) (intToBoxInt 0)
+                                           (intToBoxInt 0) (intToBoxInt 3)
+  in t6Ok && t8Ok
+
+||| 2LTT Path Equality reflecting inner Quadrea manifold path to outer strict equality.
+public export
+0 reflectQuadreaPathToStrict : (q1, q2, q3 : BoxInt) ->
+                               (0 p : Path (quadrea q1 q2 q3) (quadrea q1 q2 q3)) ->
+                               quadrea q1 q2 q3 = quadrea q1 q2 q3
+reflectQuadreaPathToStrict q1 q2 q3 ReflP = reflectPathToStrict ReflP
+
+||| Audits that Quadrea Archimedes formula and Gram Maxel determinant are strictly equal.
+public export
+auditQuadreaArchimedesPathProof : Bool
+auditQuadreaArchimedesPathProof =
+  let q1 = intToBoxInt 9
+      q2 = intToBoxInt 16
+      q3 = intToBoxInt 25
+  in quadrea q1 q2 q3 == quadreaMaxel q1 q2 q3
+
+
 

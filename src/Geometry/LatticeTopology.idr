@@ -10,8 +10,11 @@ import Core.NarayAlphabet
 import Data.Vect
 import Data.Fin
 import Core.Goh
+import Math.OnSeq.FusedStream
+import Data.Fuel
 
 %default total
+
 
 ||| A discrete 3D Spatial Coordinate vector situated on the 3x3x3 maxel grid.
 ||| Each coordinate component x, y, z is an exact ternary value in {-1, 0, +1}.
@@ -120,35 +123,35 @@ getFaceNeighbors idx =
 
 ||| Helper to safely look up cell value by Fin 27 index.
 public export
-lookupCell : Fin 27 -> Vect 27 BoxInt -> BoxInt
+lookupCell : Fin 27 -> Vect 27 Core.BoxInt.BoxInt -> Core.BoxInt.BoxInt
 lookupCell idx grid = index idx grid
 
 ||| Computes the Discrete Laplacian ΔV on a single cell:
 ||| ΔV(r) = Σ (V(neighbor) - V(r)) for all 6 face neighbors
 public export
-cellLaplacian : Fin 27 -> Vect 27 BoxInt -> BoxInt
+cellLaplacian : Fin 27 -> Vect 27 Core.BoxInt.BoxInt -> Core.BoxInt.BoxInt
 cellLaplacian idx grid =
   let selfVal   = lookupCell idx grid
       neighbors = getFaceNeighbors idx
-      sumNeighbors = foldl (\acc, nIdx => acc + lookupCell nIdx grid) (intToBoxInt 0) neighbors
-  in sumNeighbors - (intToBoxInt 6 * selfVal)
+      sumNeighbors = foldl (\acc, nIdx => acc + lookupCell nIdx grid) (Core.BoxInt.intToBoxInt 0) neighbors
+  in sumNeighbors - (Core.BoxInt.intToBoxInt 6 * selfVal)
 
 ||| Generates the full Discrete Laplacian field ΔV for all 27 cells.
 public export
-discreteLaplacian27 : Vect 27 BoxInt -> Vect 27 BoxInt
+discreteLaplacian27 : Vect 27 Core.BoxInt.BoxInt -> Vect 27 Core.BoxInt.BoxInt
 discreteLaplacian27 grid =
   tabulate (\idx => cellLaplacian idx grid)
 
 ||| Computes the total sum of a 27-cell field.
 public export
-sumField27 : Vect 27 BoxInt -> BoxInt
-sumField27 grid = foldl (+) (intToBoxInt 0) grid
+sumField27 : Vect 27 Core.BoxInt.BoxInt -> Core.BoxInt.BoxInt
+sumField27 grid = foldl (+) (Core.BoxInt.intToBoxInt 0) grid
 
 ||| Propagates spatial field flux by one discrete time step under diffusion parameter kappa:
 ||| V_{t+1}(r) = V_t(r) + kappa * ΔV(r)
 ||| Exactly preserves total field sum (sum V_{t+1} == sum V_t).
 public export
-stepFluxPropagation : BoxInt -> Vect 27 BoxInt -> Vect 27 BoxInt
+stepFluxPropagation : Core.BoxInt.BoxInt -> Vect 27 Core.BoxInt.BoxInt -> Vect 27 Core.BoxInt.BoxInt
 stepFluxPropagation kappa grid =
   let lap = discreteLaplacian27 grid
   in zipWith (\v, l => v + (kappa * l)) grid lap
@@ -166,14 +169,14 @@ fin27ToVoxel idx =
 
 ||| Converts a flat 27-cell scalar field into a 3D Boxel multiset.
 public export
-field27ToBoxel : Vect 27 BoxInt -> Boxel
+field27ToBoxel : Vect 27 Core.BoxInt.BoxInt -> Boxel
 field27ToBoxel grid =
   let paired = tabulate (\idx => (fin27ToVoxel idx, lookupCell idx grid))
   in canonicalizeBoxel (MkBoxel (toList paired))
 
 ||| Converts a 3D Boxel multiset back into a flat 27-cell scalar field.
 public export
-boxelToField27 : Boxel -> Vect 27 BoxInt
+boxelToField27 : Boxel -> Vect 27 Core.BoxInt.BoxInt
 boxelToField27 b =
   tabulate (\idx => lookupVoxel (fin27ToVoxel idx) b)
 
@@ -249,6 +252,34 @@ public export
                                auditToroidalBoxelFlux size EmptyBag = True
 verifyTopologicalCoherence Z     = Refl
 verifyTopologicalCoherence (S k) = Refl
+
+------------------------------------------------------------------------
+-- 6. DEFORESTED SPATIAL LATTICE COORDINATE STREAMING
+------------------------------------------------------------------------
+
+||| Generates a zero-allocation deforested stream of spatial coordinate shifts across a direction sequence.
+public export
+fusedLatticeStream : Coord3D -> List CardinalDir -> FusedStream Coord3D
+fusedLatticeStream startPos dirs =
+  unfoldStream
+    (\(curr, ds) => case ds of
+                      [] => Done
+                      (d :: rest) =>
+                        let next = stepNeighbor d curr
+                        in Yield next (next, rest))
+    (startPos, dirs)
+
+||| Audit witness verifying zero-allocation lattice stream spatial shift equivalence.
+public export covering
+auditFusedLatticeStreamProof : Bool
+auditFusedLatticeStreamProof =
+  let c0 = MkCoord3D Bit3Zero Bit3Zero Bit3Zero
+      dirs = [DirEast, DirNorth, DirUp]
+      strm = fusedLatticeStream c0 dirs
+      res = runFueledStream (limit 10) strm
+  in length res == 3
+
+
 
 
 

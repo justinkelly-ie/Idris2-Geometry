@@ -99,20 +99,20 @@ geometryMetric SubstrateGeom  = gSubstrate
 ||| Computes the exact metric determinant for a fundamental geometry.
 %inline
 public export
-geometryDeterminant : FundamentalGeometry -> BoxInt
+geometryDeterminant : FundamentalGeometry -> Core.BoxInt.BoxInt
 geometryDeterminant geom = detMetric (geometryMetric geom)
 
 ||| Computes the exact metric trace for a fundamental geometry.
 %inline
 public export
-geometryTrace : FundamentalGeometry -> BoxInt
+geometryTrace : FundamentalGeometry -> Core.BoxInt.BoxInt
 geometryTrace geom = traceMetric (geometryMetric geom)
 
 ||| Evaluates the algebraic Quadrance Q_g(v) of a 2D Vexel under a fundamental geometry:
 ||| Q_g(v) = v1^2 * g11 + 2 * v1 * v2 * g12 + v2^2 * g22.
 %inline
 public export
-evaluateQuadrance : FundamentalGeometry -> (v1 : BoxInt) -> (v2 : BoxInt) -> BoxInt
+evaluateQuadrance : FundamentalGeometry -> (v1 : Core.BoxInt.BoxInt) -> (v2 : Core.BoxInt.BoxInt) -> Core.BoxInt.BoxInt
 evaluateQuadrance geom v1 v2 =
   let g = geometryMetric geom
       g11Val = g11 g
@@ -132,21 +132,21 @@ evaluateQuadrance geom v1 v2 =
 ||| For any non-zero spatial displacement (1, 0), Q_Elliptic = +1 (strictly positive).
 %inline
 public export
-ellipticConfinementAction : (v1 : BoxInt) -> (v2 : BoxInt) -> BoxInt
+ellipticConfinementAction : (v1 : Core.BoxInt.BoxInt) -> (v2 : Core.BoxInt.BoxInt) -> Core.BoxInt.BoxInt
 ellipticConfinementAction v1 v2 = evaluateQuadrance EllipticGeom v1 v2
 
 ||| 2. Hyperbolic Action: Non-Abelian Quantum Phase & Lightcones.
 ||| Admits lightlike null vectors with zero quadrance (e.g. (1, 1) -> 1 - 1 = 0).
 %inline
 public export
-hyperbolicPhaseAction : (v1 : BoxInt) -> (v2 : BoxInt) -> BoxInt
+hyperbolicPhaseAction : (v1 : Core.BoxInt.BoxInt) -> (v2 : Core.BoxInt.BoxInt) -> Core.BoxInt.BoxInt
 hyperbolicPhaseAction v1 v2 = evaluateQuadrance HyperbolicGeom v1 v2
 
 ||| 3. Parabolic Action: Degenerate Dissipation Channel.
 ||| Disregards orthogonal direction components (g22 = 0, g12 = 0) allowing remainder drainage.
 %inline
 public export
-parabolicDissipationAction : (v1 : BoxInt) -> (v2 : BoxInt) -> BoxInt
+parabolicDissipationAction : (v1 : Core.BoxInt.BoxInt) -> (v2 : Core.BoxInt.BoxInt) -> Core.BoxInt.BoxInt
 parabolicDissipationAction v1 v2 = evaluateQuadrance ParabolicGeom v1 v2
 
 ||| 4. Substrate Action: Irreversible Causal Arrow.
@@ -233,3 +233,66 @@ auditFourGeometriesCosmicSynthesisProof =
                 _ => False
       okTot = natEq bTotal 210
   in okHyp && okEll && okTot
+
+------------------------------------------------------------------------
+-- 6. WILDBERGER PLANAR CHROMOGEOMETRY THEOREMS (THEOREMS 6 & 8)
+------------------------------------------------------------------------
+
+||| Wildberger Theorem 6: Three-Fold Quadrance Metric Symmetry (Q_b^2 == Q_r^2 + Q_g^2).
+||| For displacement (dx, dy): Q_b = dx^2 + dy^2, Q_r = dx^2 - dy^2, Q_g = 2*dx*dy.
+public export
+evaluateThreeFoldQuadranceSymmetry : (dx : BoxInt) -> (dy : BoxInt) -> Bool
+evaluateThreeFoldQuadranceSymmetry dx dy =
+  let qb = (dx * dx) + (dy * dy)
+      qr = (dx * dx) - (dy * dy)
+      qg = intToBoxInt 2 * (dx * dy)
+  in (qb * qb) == (qr * qr) + (qg * qg)
+
+||| Computes the (Blue, Red, Green) Quadreas of a triangle A1(x1, y1), A2(x2, y2), A3(x3, y3).
+public export
+evaluateThreeFoldQuadrea : (x1 : BoxInt) -> (y1 : BoxInt) ->
+                           (x2 : BoxInt) -> (y2 : BoxInt) ->
+                           (x3 : BoxInt) -> (y3 : BoxInt) -> (BoxInt, BoxInt, BoxInt)
+evaluateThreeFoldQuadrea x1 y1 x2 y2 x3 y3 =
+  let dx12 = x2 - x1
+      dy12 = y2 - y1
+      dx23 = x3 - x2
+      dy23 = y3 - y2
+      dx31 = x1 - x3
+      dy31 = y1 - y3
+      -- Blue Quadrances
+      qb1 = (dx12 * dx12) + (dy12 * dy12)
+      qb2 = (dx23 * dx23) + (dy23 * dy23)
+      qb3 = (dx31 * dx31) + (dy31 * dy31)
+      ab  = (qb1 + qb2 + qb3) * (qb1 + qb2 + qb3) - intToBoxInt 2 * ((qb1 * qb1) + (qb2 * qb2) + (qb3 * qb3))
+      -- Red Quadrances
+      qr1 = (dx12 * dx12) - (dy12 * dy12)
+      qr2 = (dx23 * dx23) - (dy23 * dy23)
+      qr3 = (dx31 * dx31) - (dy31 * dy31)
+      ar  = (qr1 + qr2 + qr3) * (qr1 + qr2 + qr3) - intToBoxInt 2 * ((qr1 * qr1) + (qr2 * qr2) + (qr3 * qr3))
+      -- Green Quadrances
+      qg1 = intToBoxInt 2 * (dx12 * dy12)
+      qg2 = intToBoxInt 2 * (dx23 * dy23)
+      qg3 = intToBoxInt 2 * (dx31 * dy31)
+      ag  = (qg1 + qg2 + qg3) * (qg1 + qg2 + qg3) - intToBoxInt 2 * ((qg1 * qg1) + (qg2 * qg2) + (qg3 * qg3))
+  in (ab, ar, ag)
+
+||| Wildberger Theorem 8: The Three-Fold Quadrea Theorem (A_b == -A_r == -A_g).
+public export
+verifyThreeFoldQuadreaTheorem : (x1 : BoxInt) -> (y1 : BoxInt) ->
+                                (x2 : BoxInt) -> (y2 : BoxInt) ->
+                                (x3 : BoxInt) -> (y3 : BoxInt) -> Bool
+verifyThreeFoldQuadreaTheorem x1 y1 x2 y2 x3 y3 =
+  let (ab, ar, ag) = evaluateThreeFoldQuadrea x1 y1 x2 y2 x3 y3
+  in ab == (intToBoxInt (-1) * ar) && ab == (intToBoxInt (-1) * ag)
+
+||| Audits Wildberger Chromogeometry Theorems 6 & 8 on concrete triangle coordinates.
+public export
+auditThreeFoldChromogeometryProof : Bool
+auditThreeFoldChromogeometryProof =
+  let t6Ok = evaluateThreeFoldQuadranceSymmetry (intToBoxInt 3) (intToBoxInt 4)
+      t8Ok = verifyThreeFoldQuadreaTheorem (intToBoxInt 0) (intToBoxInt 0)
+                                           (intToBoxInt 4) (intToBoxInt 0)
+                                           (intToBoxInt 0) (intToBoxInt 3)
+  in t6Ok && t8Ok
+

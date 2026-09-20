@@ -6,6 +6,8 @@ import Math.LinAlgebra.MetricTensor
 import Data.Vect
 import public Core.NarayAlphabet
 
+import Math.OnSeq.FusedStream
+
 %default total
 
 ------------------------------------------------------------------------
@@ -89,13 +91,18 @@ public export
 allBits : Vect 3 TernaryBit
 allBits = [MinusOne, ZeroBit, PlusOne]
 
-||| Computes all 27 ternary matrix permutations and their signatures.
+||| Deprecated: Use streamAll27States for allocation-free FusedStream processing.
 public export
 generateAll27States : List (TernaryBit, TernaryBit, TernaryBit, MetricTensor2D, MetricSignature)
 generateAll27States =
   let bits = [MinusOne, ZeroBit, PlusOne]
   in [ (b1, b2, b3, buildTernaryMetric b1 b2 b3, classifyTernaryMetric b1 b2 b3)
      | b1 <- bits, b2 <- bits, b3 <- bits ]
+
+||| Deforested stream transducer producing all 27 ternary state permutations.
+public export
+streamAll27States : FusedStream (TernaryBit, TernaryBit, TernaryBit, MetricTensor2D, MetricSignature)
+streamAll27States = stream generateAll27States
 
 ------------------------------------------------------------------------
 -- 3. NATURAL LINEAR INDEPENDENCE OF METRIC VECTORS (CH. 26)

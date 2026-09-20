@@ -27,7 +27,7 @@ hyperbolicGeodesicDistance fuel q = hehnerBitDepth fuel q
 public export
 auditHyperbolicBitDualityProof : Bool
 auditHyperbolicBitDualityProof =
-  intToBoxInt 3 == intToBoxInt 3
+  Core.BoxInt.intToBoxInt 3 == Core.BoxInt.intToBoxInt 3
 
 ||| Proves that Clifford vector collinearity <u, v> directly matches Multiset Intersection Mass:
 ||| For orthogonal vectors (collinear = 0), intersection is empty;
@@ -35,7 +35,7 @@ auditHyperbolicBitDualityProof =
 public export
 auditCliffordCompactnessDualityProof : Bool
 auditCliffordCompactnessDualityProof =
-  (intToBoxInt 25 == intToBoxInt 25) && (intToBoxInt 0 == intToBoxInt 0)
+  (Core.BoxInt.intToBoxInt 25 == Core.BoxInt.intToBoxInt 25) && (Core.BoxInt.intToBoxInt 0 == Core.BoxInt.intToBoxInt 0)
 
 ------------------------------------------------------------------------
 -- 3. CHROMOGEOMETRIC SECTOR CHANCES & COSMIC 210 BUDGET
@@ -55,7 +55,7 @@ chromogeometricSectorChance GreenColor = hehnerTallyToChance 55 210
 public export
 auditChromogeometricBudgetProof : Bool
 auditChromogeometricBudgetProof =
-  intToBoxInt (27 + 128 + 55) == intToBoxInt 210
+  Core.BoxInt.intToBoxInt (27 + 128 + 55) == Core.BoxInt.intToBoxInt 210
 
 ------------------------------------------------------------------------
 -- 4. HOLOGRAPHIC CROSS-ENTROPY BOUNDARY DUALITY
@@ -73,7 +73,7 @@ holographicCrossEntropyCapacity bPixels = bPixels
 public export
 auditHolographicBoundaryDualityProof : Bool
 auditHolographicBoundaryDualityProof =
-  intToBoxInt (6 * 9) == intToBoxInt 54
+  Core.BoxInt.intToBoxInt (6 * 9) == Core.BoxInt.intToBoxInt 54
 
 ------------------------------------------------------------------------
 -- 5. PLAQUETTE CROSS-ENTROPY & YANG-MILLS GAUGE CURVATURE
@@ -83,8 +83,8 @@ auditHolographicBoundaryDualityProof =
 ||| as the directional boundary circulation sum of its four 1-form edge connections:
 ||| F_plaquette = A_east + A_north - A_west - A_south.
 public export
-plaquetteCurvatureFlux : (aEast : BoxInt) -> (aNorth : BoxInt) -> 
-                         (aWest : BoxInt) -> (aSouth : BoxInt) -> BoxInt
+plaquetteCurvatureFlux : (aEast : Core.BoxInt.BoxInt) -> (aNorth : Core.BoxInt.BoxInt) -> 
+                         (aWest : Core.BoxInt.BoxInt) -> (aSouth : Core.BoxInt.BoxInt) -> Core.BoxInt.BoxInt
 plaquetteCurvatureFlux aE aN aW aS =
   (aE + aN) - (aW + aS)
 
@@ -93,8 +93,8 @@ plaquetteCurvatureFlux aE aN aW aS =
 ||| When F = 0 (pure gauge / flat connection), cross-entropy error is 0;
 ||| When F /= 0 (magnetic / Yang-Mills field energy), error is proportional to |F|.
 public export
-plaquetteCrossEntropyError : (aEast : BoxInt) -> (aNorth : BoxInt) -> 
-                             (aWest : BoxInt) -> (aSouth : BoxInt) -> Nat
+plaquetteCrossEntropyError : (aEast : Core.BoxInt.BoxInt) -> (aNorth : Core.BoxInt.BoxInt) -> 
+                             (aWest : Core.BoxInt.BoxInt) -> (aSouth : Core.BoxInt.BoxInt) -> Nat
 plaquetteCrossEntropyError aE aN aW aS =
   let f = plaquetteCurvatureFlux aE aN aW aS
   in boxToNat f
@@ -105,7 +105,7 @@ plaquetteCrossEntropyError aE aN aW aS =
 public export
 auditYangMillsPlaquetteCrossEntropyProof : Bool
 auditYangMillsPlaquetteCrossEntropyProof =
-  (intToBoxInt 0 == intToBoxInt 0) && (intToBoxInt 6 == intToBoxInt 6)
+  (Core.BoxInt.intToBoxInt 0 == Core.BoxInt.intToBoxInt 0) && (Core.BoxInt.intToBoxInt 6 == Core.BoxInt.intToBoxInt 6)
 
 ------------------------------------------------------------------------
 -- 6. MULTI-SCALE RENORMALIZATION GROUP (RG) INVARIANCE
@@ -124,7 +124,7 @@ renormalizationMutualCompactness micro macro =
 public export
 auditRenormalizationInvarianceProof : Bool
 auditRenormalizationInvarianceProof =
-  intToBoxInt 1 == intToBoxInt 1
+  Core.BoxInt.intToBoxInt 1 == Core.BoxInt.intToBoxInt 1
 
 ------------------------------------------------------------------------
 -- 7. MULTISET QUADRANCE & RATIONAL INFORMATION METRIC (CH. 18-20)
@@ -133,8 +133,8 @@ auditRenormalizationInvarianceProof =
 ||| Computes exact information quadrance between two probability/token multisets:
 ||| Q_Info(P, Q) = (D_MSet(P, Q))^2.
 public export
-multisetQuadranceDistance : Eq a => Box a -> Box a -> BoxInt
-multisetQuadranceDistance p q = boxDifferenceQuadrance p q
+multisetQuadranceDistance : Eq a => Box a -> Box a -> Core.BoxInt.BoxInt
+multisetQuadranceDistance {a} p q = boxDifferenceQuadrance p q
 
 ||| Audits that Multiset Information Quadrance:
 ||| 1. Q_Info(P, P) == 0 (zero self-quadrance)
@@ -142,11 +142,11 @@ multisetQuadranceDistance p q = boxDifferenceQuadrance p q
 public export
 auditInformationQuadranceProof : Bool
 auditInformationQuadranceProof =
-  let p = MkBox [(1, intToBoxInt 5), (2, intToBoxInt 3)]
-      q = MkBox [(1, intToBoxInt 4), (2, intToBoxInt 4)]
+  let p = MkBox [(1, Core.BoxInt.intToBoxInt 5), (2, Core.BoxInt.intToBoxInt 3)]
+      q = MkBox [(1, Core.BoxInt.intToBoxInt 4), (2, Core.BoxInt.intToBoxInt 4)]
       qSelf = multisetQuadranceDistance p p
       qDiff = multisetQuadranceDistance p q
-  in qSelf == intToBoxInt 0 && qDiff == intToBoxInt 4
+  in qSelf == Core.BoxInt.intToBoxInt 0 && qDiff == Core.BoxInt.intToBoxInt 4
 
 ------------------------------------------------------------------------
 -- 8. CONSTRUCTIVE WASSERSTEIN OPTIMAL TRANSPORT METRIC (EARTH MOVER)
@@ -154,7 +154,7 @@ auditInformationQuadranceProof =
 
 ||| Cumulative distribution helper:
 public export
-cumulativeDistributionHelper : BoxInt -> List BoxInt -> List BoxInt
+cumulativeDistributionHelper : Core.BoxInt.BoxInt -> List Core.BoxInt.BoxInt -> List Core.BoxInt.BoxInt
 cumulativeDistributionHelper acc [] = []
 cumulativeDistributionHelper acc (x :: xs) =
   let next = addBox acc x
@@ -162,12 +162,12 @@ cumulativeDistributionHelper acc (x :: xs) =
 
 ||| Computes cumulative sum (CDF) of a discrete token distribution vector:
 public export
-cumulativeDistribution : List BoxInt -> List BoxInt
-cumulativeDistribution xs = intToBoxInt 0 :: cumulativeDistributionHelper (intToBoxInt 0) xs
+cumulativeDistribution : List Core.BoxInt.BoxInt -> List Core.BoxInt.BoxInt
+cumulativeDistribution xs = Core.BoxInt.intToBoxInt 0 :: cumulativeDistributionHelper (Core.BoxInt.intToBoxInt 0) xs
 
 ||| Pointwise absolute differences between two CDFs:
 public export
-wassersteinDiffHelper : List BoxInt -> List BoxInt -> List Nat
+wassersteinDiffHelper : List Core.BoxInt.BoxInt -> List Core.BoxInt.BoxInt -> List Nat
 wassersteinDiffHelper [] _ = []
 wassersteinDiffHelper _ [] = []
 wassersteinDiffHelper (a :: as) (b :: bs) =
@@ -184,7 +184,7 @@ sumNatList (x :: xs) = natAdd x (sumNatList xs)
 ||| Computes exact 1D discrete Wasserstein-1 (Earth Mover's) Distance:
 ||| W_1(P, Q) = sum_k |CDF_P(k) - CDF_Q(k)|
 public export
-discreteWasserstein1D : List BoxInt -> List BoxInt -> Nat
+discreteWasserstein1D : List Core.BoxInt.BoxInt -> List Core.BoxInt.BoxInt -> Nat
 discreteWasserstein1D p q =
   let cdfP = cumulativeDistribution p
       cdfQ = cumulativeDistribution q
