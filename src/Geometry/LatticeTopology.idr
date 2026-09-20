@@ -3,6 +3,7 @@ module Geometry.LatticeTopology
 import Language.Reflection
 import Math.Singleton.Bit
 import Core.BoxInt
+import Core.Order.Preorder
 import Core.ScaleTransform
 import Core.VexelMaxel
 import Math.LinAlgebra.TernaryClassifier
@@ -249,6 +250,25 @@ public export
                               auditToroidalBoxelFlux size EmptyBag = True
 verifyTopologicalCoherence Z     = Refl
 verifyTopologicalCoherence (S k) = Refl
+
+||| Type-level erased proof witness verifying discrete lattice metric quadrance invariance (dx^2 + dy^2 = q).
+public export
+0 DiscreteLatticeQuadranceInvariance : Nat -> Nat -> Nat -> Type
+DiscreteLatticeQuadranceInvariance dx dy q = natAdd (dx * dx) (dy * dy) = q
+
+||| Discrete chromogeometric transformation witness across spatial shift steps on the torus,
+||| equipped with an erased 0 metricPrf QuadranceInvariance witness.
+public export
+record DiscreteLatticeMetricTransform (dx : Nat) (dy : Nat) (q : Nat) where
+  constructor MkDiscreteLatticeMetricTransform
+  0 metricPrf : DiscreteLatticeQuadranceInvariance dx dy q
+
+||| Constructs a discrete lattice metric transformation with an erased compile-time quadrance witness.
+public export
+makeLatticeMetricTransform : (dx : Nat) -> (dy : Nat) -> (q : Nat) ->
+                             (0 metricPrf : DiscreteLatticeQuadranceInvariance dx dy q) ->
+                             DiscreteLatticeMetricTransform dx dy q
+makeLatticeMetricTransform dx dy q prf = MkDiscreteLatticeMetricTransform prf
 
 ------------------------------------------------------------------------
 -- 6. DEFORESTED SPATIAL LATTICE COORDINATE STREAMING

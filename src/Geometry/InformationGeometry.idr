@@ -57,6 +57,42 @@ auditChromogeometricBudgetProof : Bool
 auditChromogeometricBudgetProof =
   Core.BoxInt.intToBoxInt (27 + 128 + 55) == Core.BoxInt.intToBoxInt 210
 
+||| Zero-cost compile-time erased proof witness of Chromogeometric Metric Quadrance Invariance: natAdd b r = g.
+public export
+0 QuadranceInvariance : Nat -> Nat -> Nat -> Type
+QuadranceInvariance b r g = natAdd b r = g
+
+||| Monomorphic erased compile-time proof witness for 3-sector chromogeometric budget conservation (27 + 128 + 55 = 210).
+public export
+0 QuadranceInvariance3 : Nat -> Nat -> Nat -> Nat -> Type
+QuadranceInvariance3 b r g tot = natAdd (natAdd b r) g = tot
+
+||| Erased 0 compile-time proof witness verifying 210 primorial budget invariance.
+public export
+0 prfChromogeometricBudgetInvariance : QuadranceInvariance3 27 128 55 210
+prfChromogeometricBudgetInvariance = Refl
+
+||| Represents a discrete chromogeometric metric space with erased compile-time QuadranceInvariance witness.
+public export
+record ChromoMetricSpace (b : Nat) (r : Nat) (g : Nat) where
+  constructor MkChromoMetricSpace
+  0 metricPrf : QuadranceInvariance b r g
+
+||| Constructs a validated ChromoMetricSpace with an erased compile-time proof witness.
+public export
+makeChromoMetricSpace : (b : Nat) -> (r : Nat) -> (g : Nat) ->
+                        (0 metricPrf : QuadranceInvariance b r g) ->
+                        ChromoMetricSpace b r g
+makeChromoMetricSpace b r g prf = MkChromoMetricSpace prf
+
+||| Applies a chromogeometric transformation between metric spaces,
+||| carrying an erased 0 metricPrf witness to enforce compile-time quadrance conservation.
+public export
+transformChromoMetricSpace : (0 metricPrf : QuadranceInvariance b r g) ->
+                             ChromoMetricSpace b r g ->
+                             ChromoMetricSpace b r g
+transformChromoMetricSpace prf space = space
+
 ------------------------------------------------------------------------
 -- 4. HOLOGRAPHIC CROSS-ENTROPY BOUNDARY DUALITY
 ------------------------------------------------------------------------
