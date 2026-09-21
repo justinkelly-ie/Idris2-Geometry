@@ -14,7 +14,7 @@ import Math.OnSeq.FusedStream
 -- 1. TERNARY BIT ALPHABET REFLECTION FROM IDRIS2-NARAY
 ------------------------------------------------------------------------
 
-||| The foundational 3-bit alphabet of Box Arithmetic, aliased to Bit3 from Idris2-Naray:
+||| The foundational 3-bit alphabet of Box Arithmetic, aliased to Bit3 from FinSc-Naray:
 ||| Parity (-1), Identity (0), and Presence (+1).
 public export
 TernaryBit : Type

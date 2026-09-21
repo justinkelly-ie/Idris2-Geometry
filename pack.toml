@@ -1,4 +1,4 @@
 [package]
-name = "Idris2-Geometry"
+name = "FinSc-Geometry"
 version = "0.3.0"
-ipkg = "Idris2-Geometry.ipkg"
+ipkg = "FinSc-Geometry.ipkg"

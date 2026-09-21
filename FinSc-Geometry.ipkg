@@ -1,9 +1,9 @@
-package Idris2-Geometry
+package FinSc-Geometry
 version = 0.3.2
 authors = "Justin Kelly"
 brief   = "Layer 3a Discrete Kinematics & Differential Geometry Subsystem."
 
-depends = base, linear, Idris2-Multiset-Core, Idris2-Multiset-Transform, Idris2-Multiset-Ternary, Idris2-Dihedron
+depends = base, linear, FinSc-Multiset-Core, FinSc-Multiset-Transform, FinSc-Multiset-Ternary, FinSc-Dihedron
 sourcedir = "src"
 
 modules = Geometry,
